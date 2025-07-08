@@ -1,6 +1,7 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from tech_article_generator.llm.llm_config import llm
+from tech_article_generator.tools.topic_tools import TopicTools
 
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
@@ -19,18 +20,12 @@ class TechArticleGenerator():
     # If you would like to add tools to your agents, you can learn more about it here:
     # https://docs.crewai.com/concepts/agents#agent-tools
     @agent
-    def researcher(self) -> Agent:
+    def chief_topic_strategist(self) -> Agent:
+        topic_tools = TopicTools()
         return Agent(
             llm=llm,
-            config=self.agents_config['researcher'],
-            verbose=True
-        )
-
-    @agent
-    def reporting_analyst(self) -> Agent:
-        return Agent(
-            llm=llm,
-            config=self.agents_config['reporting_analyst'],
+            config=self.agents_config['chief_topic_strategist'],
+            tools=topic_tools.get_all_tools,
             verbose=True
         )
 
@@ -38,16 +33,9 @@ class TechArticleGenerator():
     # task dependencies, and task callbacks, check out the documentation:
     # https://docs.crewai.com/concepts/tasks#overview-of-a-task
     @task
-    def research_task(self) -> Task:
+    def topic_selection_task(self) -> Task:
         return Task(
-            config=self.tasks_config['research_task'],
-        )
-
-    @task
-    def reporting_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['reporting_task'],
-            output_file='report.md'
+            config=self.tasks_config['topic_selection_task'],
         )
 
     @crew
